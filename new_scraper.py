@@ -19,7 +19,19 @@ def accept_as_string()->str:
     keyword=input("Please, enter the search word: ")
     return keyword
 
+#defining a trial wrapper
+def trial(func):
+    def wrapper(*args,**kwargs):
+        try:
+            return func(*args,**kwargs)
+        except Exception as e:
+            print(str(e))
+            return None
+    return wrapper
+
+
 #define a function getting first page in search result
+@trial
 def get_search_result(url:str)->bs4.element.Tag:
     #getting site contents if request is successful
     site=requests.get(url).content if requests.get(url).status_code==200 else None
@@ -27,6 +39,7 @@ def get_search_result(url:str)->bs4.element.Tag:
         return bs4.BeautifulSoup(site,"html.parser")
     else:
         return None
+
 
 #define a function to get list of urls 
 def get_urls(first_page:bs4.element.Tag,keyword:str)->list:
@@ -36,6 +49,7 @@ def get_urls(first_page:bs4.element.Tag,keyword:str)->list:
     return [f"https://www.pdfdrive.com/search?q={search}&pagecount=&pubyear=&searchin=&page={page}" for page in range(1,int(last_page.text)+1)]
 
 #define asynchronous scraper
+@trial
 async def scraper(url:str)->bs4.element.Tag:
     async with aiohttp.client.ClientSession() as session:
         async with session.get(url) as response:
@@ -59,7 +73,7 @@ def add_data(book:bs4.element.Tag, queue_limit=5):
     global queue
     queue.append(
         {
-            "title":book.select("h2")[0].text,
+            "title":book.select("h2")[0].text if book.select("h2") else "none",
             "url":f"https://www.pdfdrive.com/{book.select('a')[0]['href']}" if book.select("a") else "none",
             "pages":book.select("span[class='fi-pagecount']")[0].text if book.select("span[class='fi-pagecount']") else "none",
             "year":book.select("span[class='fi-year']")[0].text if book.select("span[class='fi-year']") else "none",
