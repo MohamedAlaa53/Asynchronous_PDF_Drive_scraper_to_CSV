@@ -4,7 +4,10 @@ Algorithm for 'PDF_drive scrapping by searching for a key word':
     (2) Send a request to PDF_drive server to get search result first page. # getting pages.
         (2.1) get the last page number.
         (2.2) get a list of pages depending on the last page number.
-    (3) scrap all pages in parallel and when a page finish store its data in CSV file.
+    (3) scrap all pages in parallel.
+    (4) get the important data and store them.
+    (5) after completing 5 items in storage save them to CSV and empty the storage.
+    (6) if there is items in the queue at the end of the program save them to CSV.
 """
 ########################################################################################
 
